@@ -57,15 +57,17 @@ struct MapPicker: View {
 struct ContentView: View {
     @State var camera: MapCameraPosition = MapCameraPosition.camera(initialCamera)
     @State var baseLayer: BaseLayer = .standard
+    @State var selectedMarker: ParkDataMarker?
     
     private var locationManager = LocationManager()
     
     var body: some View {
         VStack {
             Map (
-                initialPosition: camera,
+                position: $camera,
                 bounds: bounds,
-                interactionModes: [.pan, .zoom]
+                interactionModes: [.pan, .zoom],
+                selection: $selectedMarker,
             ) {
                 parkShape
                     .stroke(.blue, lineWidth: 3)
@@ -81,7 +83,8 @@ struct ContentView: View {
             .mapStyle(baseLayer.mapStyle())
             
             MapPicker(baseLayer: $baseLayer)
-        }.background(Color.background)
+        }
+        .background(Color.background)
     }
 }
 

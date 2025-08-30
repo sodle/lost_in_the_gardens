@@ -65,7 +65,15 @@ struct ParkDataProperties: Decodable {
     let iconName: String?
 }
 
-struct ParkDataMarker: Identifiable, MapContent {
+struct ParkDataMarker: Identifiable, Hashable, MapContent {
+    static func == (lhs: ParkDataMarker, rhs: ParkDataMarker) -> Bool {
+        lhs.id == rhs.id
+    }
+    
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+    }
+    
     var id: String { properties.name }
     
     let properties: ParkDataProperties
@@ -76,12 +84,15 @@ struct ParkDataMarker: Identifiable, MapContent {
         if let monogram = properties.monogram {
             Marker(properties.name, monogram: Text(monogram), coordinate: marker.coordinate)
                 .tint(categoryData.color.uiColor)
+                .tag(self)
         } else if let iconName = properties.iconName {
             Marker(properties.name, systemImage: iconName, coordinate: marker.coordinate)
                 .tint(categoryData.color.uiColor)
+                .tag(self)
         } else {
             Marker(properties.name, coordinate: marker.coordinate)
                 .tint(categoryData.color.uiColor)
+                .tag(self)
         }
     }
 }
