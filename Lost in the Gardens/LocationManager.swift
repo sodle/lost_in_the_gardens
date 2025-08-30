@@ -26,7 +26,7 @@ final class LocationManager : NSObject, CLLocationManagerDelegate, ObservableObj
             print("location access not allowed")
         case .notDetermined:
             print("requesting location access")
-            manager.requestAlwaysAuthorization()
+            manager.requestWhenInUseAuthorization()
         @unknown default:
             print("location status unknown: \(manager.authorizationStatus)")
         }
