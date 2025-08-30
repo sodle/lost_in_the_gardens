@@ -5,88 +5,152 @@
 //  Created by Scott Odle on 8/29/25.
 //
 
+import Foundation
 import CoreLocation
 import SwiftUI
+import MapKit
 
-struct ParkExhibit : Decodable, Identifiable {
-    enum CodingKeys : String, CodingKey {
-        case name
-        case _coordinate = "coordinate"
-        case monogram
-    }
-    
-    var id: String { name }
-    
-    let name: String
-    private let _coordinate: ParkCoordinate
-    let monogram: String?
-    
-    var coordinate: CLLocationCoordinate2D {
-        _coordinate.coordinate
-    }
-}
+let categoriesPlistFilename = "Categories"
 
-struct ParkMarkerColor : Decodable {
+class ParkCategoryColor: Decodable {
     let red: Double
     let green: Double
     let blue: Double
     
-    var color: Color {
-        .init(red: red, green: green, blue: blue)
+    init(red: Double, green: Double, blue: Double) {
+        self.red = red
+        self.green = green
+        self.blue = blue
+    }
+    
+    var uiColor: Color {
+        Color(red: red, green: green, blue: blue)
     }
 }
 
-struct ParkExhibitCategory : Decodable, Identifiable {
-    enum CodingKeys: String, CodingKey {
-        case name
-        case exhibits
-        case _color = "color"
-    }
-    
-    var id: String { name }
-    
+class ParkCategory: Decodable {
     let name: String
-    let exhibits: [ParkExhibit]
-    private let _color: ParkMarkerColor
+    let color: ParkCategoryColor
     
-    var color: Color {
-        _color.color
+    init(name: String, color: ParkCategoryColor) {
+        self.name = name
+        self.color = color
+    }
+    
+    static let unknown = ParkCategory(name: "Unknown", color: ParkCategoryColor(red: 0, green: 0, blue: 0))
+}
+
+class ParkCategoryFile {
+    private let categories: [String: ParkCategory]
+    static let shared = ParkCategoryFile(categoriesPlistFilename)
+
+    init(_ filename: String) {
+        guard let categoriesUrl = Bundle.main.url(forResource: categoriesPlistFilename, withExtension: "plist") else {
+            fatalError("Couldn't find \(categoriesPlistFilename).plist in main bundle.")
+        }
+        
+        let categoriesData = try! Data(contentsOf: categoriesUrl)
+        self.categories = try! PropertyListDecoder().decode([String: ParkCategory].self, from: categoriesData)
+    }
+    
+    func getCategory(_ name: String) -> ParkCategory {
+        categories[name] ?? ParkCategory.unknown
     }
 }
 
-struct ParkCoordinate : Decodable {
-    let latitude: Double
-    let longitude: Double
-    
-    var coordinate: CLLocationCoordinate2D {
-        .init(latitude: latitude, longitude: longitude)
-    }
-}
-
-struct ParkData : Decodable {
-    enum CodingKeys : String, CodingKey {
-        case name
-        case _center = "center"
-        case _bounds = "bounds"
-        case categories
-    }
-    
+struct ParkDataProperties: Decodable {
     let name: String
-    private let _center: ParkCoordinate
-    private let _bounds: [ParkCoordinate]
-    let categories: [ParkExhibitCategory]
+    let category: String
+    let monogram: String?
+    let iconName: String?
+}
+
+struct ParkDataMarker: Identifiable, MapContent {
+    var id: String { properties.name }
     
-    static func load(plistName: String) -> ParkData {
-        let path = Bundle.main.path(forResource: plistName, ofType: "plist")!
-        let data = try! Data(contentsOf: URL(fileURLWithPath: path))
-        return try! PropertyListDecoder().decode(ParkData.self, from: data)
+    let properties: ParkDataProperties
+    let marker: MKPointAnnotation
+    
+    var body: some MapContent {
+        let categoryData = ParkCategoryFile.shared.getCategory(properties.category)
+        if let monogram = properties.monogram {
+            Marker(properties.name, monogram: Text(monogram), coordinate: marker.coordinate)
+                .tint(categoryData.color.uiColor)
+        } else if let iconName = properties.iconName {
+            Marker(properties.name, systemImage: iconName, coordinate: marker.coordinate)
+                .tint(categoryData.color.uiColor)
+        } else {
+            Marker(properties.name, coordinate: marker.coordinate)
+                .tint(categoryData.color.uiColor)
+        }
     }
+}
+
+struct ParkDataFile {
+    let parkCenter: MKPointAnnotation
+    let parkBounds: MKPolygon
+    let parkMarkers: [ParkDataMarker]
     
-    var center: CLLocationCoordinate2D {
-        _center.coordinate
-    }
-    
-    var bounds: [CLLocationCoordinate2D] {
-        _bounds.map(\.coordinate)
+    init(_ filename: String) {
+        let geoDecoder = MKGeoJSONDecoder()
+        let jsonDecoder = JSONDecoder()
+        
+        guard let jsonUrl = Bundle.main.url(forResource: filename, withExtension: "geojson") else {
+            fatalError("Couldn't find \(filename).geojson in main bundle.")
+        }
+        
+        let data = try! Data(contentsOf: jsonUrl)
+        let jsonObjects = try! geoDecoder.decode(data)
+        
+        var center: MKPointAnnotation?
+        var bounds: MKPolygon?
+        var markers = [ParkDataMarker]()
+        
+        for object in jsonObjects {
+            guard let feature = object as? MKGeoJSONFeature else {
+                print("Skipping non-feature JSON object")
+                continue
+            }
+            
+            guard let propertiesJson = feature.properties else {
+                print("Skipping feature with no properties")
+                continue
+            }
+            guard let properties = try? jsonDecoder.decode(ParkDataProperties.self, from: propertiesJson) else {
+                let props = String(data: propertiesJson, encoding: .utf8) ?? "<undecodable text>"
+                print("Skipping feature with invalid properties: \(props)")
+                continue
+            }
+            
+            for geometry in feature.geometry {
+                if let point = geometry as? MKPointAnnotation {
+                    if properties.category == "park-geometry" {
+                        center = point
+                    } else {
+                        markers.append(ParkDataMarker(properties: properties, marker: point))
+                    }
+                } else if let polygon = geometry as? MKPolygon {
+                    if properties.category == "park-geometry" {
+                        bounds = polygon
+                    } else {
+                        print("Skipping non-park-geometry polygon")
+                    }
+                } else {
+                    print("Skipping unrecognized feature")
+                }
+            }
+        }
+        
+        guard let center else {
+            fatalError("\(filename).geojson did not contain a feature for the center of the park")
+        }
+        self.parkCenter = center
+        
+        guard let bounds else {
+            fatalError("\(filename).geojson did not contain a feature for the boundaries of the park")
+        }
+        self.parkBounds = bounds
+        
+        self.parkMarkers = markers
     }
 }

@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>water-gardens</key>
+	<dict>
+		<key>name</key>
+		<string>Water Gardens</string>
+		<key>color</key>
+		<dict>
+			<key>red</key>
+			<real>0.329</real>
+			<key>green</key>
+			<real>0.475</real>
+			<key>blue</key>
+			<real>0.726</real>
+		</dict>
+	</dict>
+	<key>shady-gardens</key>
+	<dict>
+		<key>name</key>
+		<string>Shady Gardens</string>
+		<key>color</key>
+		<dict>
+			<key>red</key>
+			<real>0.424</real>
+			<key>green</key>
+			<real>0.184</real>
+			<key>blue</key>
+			<real>0.502</real>
+		</dict>
+	</dict>
+	<key>ornamental-gardens</key>
+	<dict>
+		<key>name</key>
+		<string>Ornamental Gardens</string>
+		<key>color</key>
+		<dict>
+			<key>red</key>
+			<real>0.38</real>
+			<key>green</key>
+			<real>0.471</real>
+			<key>blue</key>
+			<real>0.173</real>
+		</dict>
+	</dict>
+	<key>internationally-inspired-gardens</key>
+	<dict>
+		<key>name</key>
+		<string>Internationally Inspired Gardens</string>
+		<key>color</key>
+		<dict>
+			<key>red</key>
+			<real>0.659</real>
+			<key>green</key>
+			<real>0.2</real>
+			<key>blue</key>
+			<real>0.302</real>
+		</dict>
+	</dict>
+	<key>gardens-of-the-west</key>
+	<dict>
+		<key>name</key>
+		<string>Gardens of the West</string>
+		<key>color</key>
+		<dict>
+			<key>red</key>
+			<real>0.5610000000000001</real>
+			<key>green</key>
+			<real>0.51</real>
+			<key>blue</key>
+			<real>0.42</real>
+		</dict>
+	</dict>
+	<key>facilities</key>
+	<dict>
+		<key>name</key>
+		<string>Facilities</string>
+		<key>color</key>
+		<dict>
+			<key>red</key>
+			<real>0.875</real>
+			<key>green</key>
+			<real>0.584</real>
+			<key>blue</key>
+			<real>0.243</real>
+		</dict>
+	</dict>
+</dict>
+</plist>

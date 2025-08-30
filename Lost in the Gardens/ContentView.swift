@@ -8,12 +8,11 @@
 import SwiftUI
 import MapKit
 
-let yorkStreet = ParkData.load(plistName: "YorkStreet")
-
-let parkShape = MapPolygon(coordinates: yorkStreet.bounds)
+let yorkStreetData = ParkDataFile("YorkStreet")
+let parkShape = MapPolygon(yorkStreetData.parkBounds)
 
 let region = MKCoordinateRegion(
-    center: yorkStreet.center,
+    center: yorkStreetData.parkCenter.coordinate,
     latitudinalMeters: 1000,
     longitudinalMeters: 1000,
 )
@@ -22,7 +21,7 @@ let bounds = MapCameraBounds(
     minimumDistance: 10,
     maximumDistance: 2000,
 )
-let initialCamera = MapCamera(centerCoordinate: yorkStreet.center, distance: 1000)
+let initialCamera = MapCamera(centerCoordinate: yorkStreetData.parkCenter.coordinate, distance: 1000)
 
 enum BaseLayer: Hashable, Equatable {
     case standard, imagery
@@ -53,16 +52,8 @@ struct ContentView: View {
                 parkShape
                     .stroke(.blue, lineWidth: 3)
                     .foregroundStyle(.clear)
-                ForEach(yorkStreet.categories) { category in
-                    ForEach(category.exhibits) { exhibit in
-                        if let monogram = exhibit.monogram {
-                            Marker(exhibit.name, monogram: Text(monogram), coordinate: exhibit.coordinate)
-                                .tint(category.color)
-                        } else {
-                            Marker(exhibit.name, coordinate: exhibit.coordinate)
-                                .tint(category.color)
-                        }
-                    }
+                ForEach(yorkStreetData.parkMarkers) { marker in
+                    marker
                 }
             }
             .mapControls {
