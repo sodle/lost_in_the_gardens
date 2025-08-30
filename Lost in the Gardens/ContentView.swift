@@ -25,14 +25,12 @@ let bounds = MapCameraBounds(
 let initialCamera = MapCamera(centerCoordinate: yorkStreet.center, distance: 1000)
 
 enum BaseLayer: Hashable, Equatable {
-    case standard, hybrid, imagery
+    case standard, imagery
     
     func mapStyle() -> MapStyle {
         switch self {
         case .standard:
-            return MapStyle.standard
-        case .hybrid:
-            return MapStyle.hybrid
+            return MapStyle.standard(pointsOfInterest: .excludingAll)
         case .imagery:
             return MapStyle.imagery
         }
@@ -47,7 +45,7 @@ struct ContentView: View {
     
     var body: some View {
         VStack {
-            Map(
+            Map (
                 initialPosition: camera,
                 bounds: bounds,
                 interactionModes: [.pan, .zoom]
@@ -55,6 +53,17 @@ struct ContentView: View {
                 parkShape
                     .stroke(.blue, lineWidth: 3)
                     .foregroundStyle(.clear)
+                ForEach(yorkStreet.categories) { category in
+                    ForEach(category.exhibits) { exhibit in
+                        if let monogram = exhibit.monogram {
+                            Marker(exhibit.name, monogram: Text(monogram), coordinate: exhibit.coordinate)
+                                .tint(category.color)
+                        } else {
+                            Marker(exhibit.name, coordinate: exhibit.coordinate)
+                                .tint(category.color)
+                        }
+                    }
+                }
             }
             .mapControls {
                 MapScaleView()
@@ -66,11 +75,10 @@ struct ContentView: View {
                 Text("Map Style: ")
                 Picker("Map Style", selection: $baseLayer) {
                     Text("Streets").tag(BaseLayer.standard)
-                    Text("Hybrid").tag(BaseLayer.hybrid)
                     Text("Satellite").tag(BaseLayer.imagery)
                 }
             }
-        }
+        }.background(Color.background)
     }
 }
 

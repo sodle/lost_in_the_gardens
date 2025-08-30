@@ -110,7 +110,76 @@
 			<real>-104.9610560564718</real>
 		</dict>
 	</array>
-	<key>landmarkGroups</key>
-	<array/>
+	<key>categories</key>
+	<array>
+		<dict>
+			<key>name</key>
+			<string>Facilities</string>
+			<key>color</key>
+			<dict>
+				<key>red</key>
+				<real>0.875</real>
+				<key>green</key>
+				<real>0.581</real>
+				<key>blue</key>
+				<real>0.243</real>
+			</dict>
+			<key>exhibits</key>
+			<array>
+				<dict>
+					<key>coordinate</key>
+					<dict>
+						<key>latitude</key>
+						<real>39.7329824548634</real>
+						<key>longitude</key>
+						<real>-104.9605509195685</real>
+					</dict>
+					<key>name</key>
+					<string>Freyer-Newman Center</string>
+					<key>monogram</key>
+					<string>D</string>
+				</dict>
+				<dict>
+					<key>coordinate</key>
+					<dict>
+						<key>latitude</key>
+						<real>39.73216830400064</real>
+						<key>longitude</key>
+						<real>-104.9640913468345</real>
+					</dict>
+					<key>name</key>
+					<string>Cheesman Gate</string>
+					<key>monogram</key>
+					<string>C</string>
+				</dict>
+				<dict>
+					<key>coordinate</key>
+					<dict>
+						<key>latitude</key>
+						<real>39.73254508980577</real>
+						<key>longitude</key>
+						<real>-104.960251347825</real>
+					</dict>
+					<key>name</key>
+					<string>Bonfils-Stanton Visitor Center &amp; Gift Shop</string>
+					<key>monogram</key>
+					<string>B</string>
+				</dict>
+				<dict>
+					<key>name</key>
+					<string>Boettcher Memorial Center</string>
+					<key>monogram</key>
+					<string>A</string>
+					<key>coordinate</key>
+					<dict>
+						<key>latitude</key>
+						<real>39.73267504084534</real>
+						<key>longitude</key>
+						<real>-104.960680501236</real>
+					</dict>
+				</dict>
+			</array>
+		</dict>
+	</array>
 </dict>
 </plist>
