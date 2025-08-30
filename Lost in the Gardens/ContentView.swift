@@ -23,8 +23,11 @@ let bounds = MapCameraBounds(
 )
 let initialCamera = MapCamera(centerCoordinate: yorkStreetData.parkCenter.coordinate, distance: 1000)
 
-enum BaseLayer: Hashable, Equatable {
-    case standard, imagery
+enum BaseLayer: String, CaseIterable, Identifiable {
+    var id: String { rawValue }
+    
+    case standard = "Streets"
+    case imagery = "Satellite"
     
     func mapStyle() -> MapStyle {
         switch self {
@@ -32,6 +35,21 @@ enum BaseLayer: Hashable, Equatable {
             return MapStyle.standard(pointsOfInterest: .excludingAll)
         case .imagery:
             return MapStyle.imagery
+        }
+    }
+}
+
+struct MapPicker: View {
+    @Binding var baseLayer: BaseLayer
+    
+    var body: some View {
+        HStack {
+            Text("Map Style: ")
+            Picker("Map Style", selection: $baseLayer) {
+                ForEach(BaseLayer.allCases) { baseLayer in
+                    Text(baseLayer.rawValue).tag(baseLayer)
+                }
+            }
         }
     }
 }
@@ -62,13 +80,7 @@ struct ContentView: View {
             .mapControlVisibility(.visible)
             .mapStyle(baseLayer.mapStyle())
             
-            HStack {
-                Text("Map Style: ")
-                Picker("Map Style", selection: $baseLayer) {
-                    Text("Streets").tag(BaseLayer.standard)
-                    Text("Satellite").tag(BaseLayer.imagery)
-                }
-            }
+            MapPicker(baseLayer: $baseLayer)
         }.background(Color.background)
     }
 }
