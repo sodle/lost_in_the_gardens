@@ -23,51 +23,52 @@ let bounds = MapCameraBounds(
 )
 let initialCamera = MapCamera(centerCoordinate: yorkStreetData.parkCenter.coordinate, distance: 1000)
 
-enum BaseLayer: String, CaseIterable, Identifiable {
-    var id: String { rawValue }
+struct SatelliteViewToggler: View {
+    @Binding var isSatelliteViewActive: Bool
     
-    case standard = "Streets"
-    case imagery = "Satellite"
+    func toggle() {
+        isSatelliteViewActive.toggle()
+    }
     
-    func mapStyle() -> MapStyle {
-        switch self {
-        case .standard:
-            return MapStyle.standard(pointsOfInterest: .excludingAll)
-        case .imagery:
-            return MapStyle.imagery
+    private var buttonStyle: some PrimitiveButtonStyle {
+        if #available(iOS 26.0, macOS 26.0, *) {
+            return .glass
+        } else {
+            return .borderedProminent
         }
     }
-}
-
-struct MapPicker: View {
-    @Binding var baseLayer: BaseLayer
+    
+    private var imageName: String {
+        isSatelliteViewActive ? "globe" : "map.fill"
+    }
     
     var body: some View {
-        HStack {
-            Text("Map Style: ")
-            Picker("Map Style", selection: $baseLayer) {
-                ForEach(BaseLayer.allCases) { baseLayer in
-                    Text(baseLayer.rawValue).tag(baseLayer)
-                }
-            }
+        Button(action: toggle) {
+            Image(systemName: imageName)
+                .padding()
         }
+        .font(.largeTitle)
+        .buttonStyle(buttonStyle)
+        .tint(.accent)
     }
 }
 
 struct ContentView: View {
     @State var camera: MapCameraPosition = MapCameraPosition.camera(initialCamera)
-    @State var baseLayer: BaseLayer = .standard
     @State var selectedMarker: ParkDataMarker?
+    @State var isSatelliteViewActive: Bool = false
     
+    @Namespace private var mapScope
     @ObservedObject private var locationManager = LocationManager(park: yorkStreetData)
     
     var body: some View {
-        VStack {
+        ZStack(alignment: .topTrailing) {
             Map (
                 position: $camera,
                 bounds: bounds,
                 interactionModes: [.pan, .zoom, .rotate],
                 selection: $selectedMarker,
+                scope: mapScope,
             ) {
                 parkShape
                     .stroke(.blue, lineWidth: 3)
@@ -76,22 +77,38 @@ struct ContentView: View {
                     marker
                 }
                 UserAnnotation()
-            }
-            .mapControls {
-                MapScaleView()
-                MapCompass()
-                if locationManager.inPark {
-                    MapUserLocationButton()
+            }.mapControlVisibility(.hidden)
+                .mapStyle(isSatelliteViewActive ? .imagery : .standard(pointsOfInterest: .excludingAll))
+                .onAppear {
+                    locationManager.checkLocationAuthorization()
                 }
-            }
-            .mapStyle(baseLayer.mapStyle())
             
-            MapPicker(baseLayer: $baseLayer)
-        }
-        .background(Color.background)
-        .onAppear {
-            locationManager.checkLocationAuthorization()
-        }
+            VStack {
+                HStack(alignment: .top) {
+                    VStack {
+                        MapScaleView(scope: mapScope)
+                    }.frame(maxWidth: .infinity, alignment: .leading)
+                    
+                    HStack {
+                        VStack {
+                            SatelliteViewToggler(isSatelliteViewActive: $isSatelliteViewActive)
+                            MapCompass(scope: mapScope)
+                        }
+                    }.frame(maxWidth: .infinity, alignment: .trailing)
+                }.frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+                
+                HStack(alignment: .bottom) {
+                    VStack(alignment: .trailing) {
+                        if locationManager.inPark {
+                            MapUserLocationButton(scope: mapScope)
+                        }
+#if os(macOS)
+                        MapZoomStepper(scope: mapScope)
+#endif
+                    }.frame(maxWidth: .infinity, alignment: .trailing)
+                }.frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing)
+            }.padding()
+        }.mapScope(mapScope)
     }
 }
 
