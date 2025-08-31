@@ -75,6 +75,7 @@ struct ContentView: View {
                 ForEach(yorkStreetData.parkMarkers) { marker in
                     marker
                 }
+                UserAnnotation()
             }
             .mapControls {
                 MapScaleView()
@@ -85,6 +86,9 @@ struct ContentView: View {
             MapPicker(baseLayer: $baseLayer)
         }
         .background(Color.background)
+        .onAppear {
+            locationManager.checkLocationAuthorization()
+        }
     }
 }
 

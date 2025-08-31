@@ -9,6 +9,7 @@ import CoreLocation
 
 final class LocationManager : NSObject, CLLocationManagerDelegate, ObservableObject {
     @Published var lastLocation: CLLocationCoordinate2D?
+    @Published var bearing: CLLocationDirection?
     private let manager = CLLocationManager()
     
     func checkLocationAuthorization() {
@@ -39,6 +40,7 @@ final class LocationManager : NSObject, CLLocationManagerDelegate, ObservableObj
     
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         lastLocation = locations.last?.coordinate
+        bearing = locations.last?.course
     }
 }
 
