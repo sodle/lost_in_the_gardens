@@ -59,14 +59,14 @@ struct ContentView: View {
     @State var baseLayer: BaseLayer = .standard
     @State var selectedMarker: ParkDataMarker?
     
-    private var locationManager = LocationManager()
+    @ObservedObject private var locationManager = LocationManager(park: yorkStreetData)
     
     var body: some View {
         VStack {
             Map (
                 position: $camera,
                 bounds: bounds,
-                interactionModes: [.pan, .zoom],
+                interactionModes: [.pan, .zoom, .rotate],
                 selection: $selectedMarker,
             ) {
                 parkShape
@@ -79,8 +79,11 @@ struct ContentView: View {
             }
             .mapControls {
                 MapScaleView()
+                MapCompass()
+                if locationManager.inPark {
+                    MapUserLocationButton()
+                }
             }
-            .mapControlVisibility(.visible)
             .mapStyle(baseLayer.mapStyle())
             
             MapPicker(baseLayer: $baseLayer)

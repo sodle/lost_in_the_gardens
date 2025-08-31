@@ -6,11 +6,20 @@
 //
 import Foundation
 import CoreLocation
+import MapKit
 
 final class LocationManager : NSObject, CLLocationManagerDelegate, ObservableObject {
+    let park: ParkDataFile
+    
     @Published var lastLocation: CLLocationCoordinate2D?
     @Published var bearing: CLLocationDirection?
+    @Published var inPark: Bool = false
+
     private let manager = CLLocationManager()
+    
+    init(park: ParkDataFile) {
+        self.park = park
+    }
     
     func checkLocationAuthorization() {
         manager.delegate = self
@@ -39,8 +48,14 @@ final class LocationManager : NSObject, CLLocationManagerDelegate, ObservableObj
     }
     
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        lastLocation = locations.last?.coordinate
-        bearing = locations.last?.course
+        guard let currentLocation = locations.last else {
+            inPark = false
+            return
+        }
+        
+        lastLocation = currentLocation.coordinate
+        bearing = currentLocation.course
+        inPark = park.parkBounds.boundingMapRect.contains(MKMapPoint(currentLocation.coordinate))
     }
 }
 
