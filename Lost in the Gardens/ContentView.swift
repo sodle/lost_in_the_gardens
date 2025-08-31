@@ -45,10 +45,9 @@ struct SatelliteViewToggler: View {
     var body: some View {
         Button(action: toggle) {
             Image(systemName: imageName)
-                .padding()
         }
-        .font(.largeTitle)
         .buttonStyle(buttonStyle)
+        .buttonBorderShape(.roundedRectangle)
         .tint(.accent)
     }
 }
