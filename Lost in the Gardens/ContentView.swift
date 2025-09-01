@@ -64,9 +64,6 @@ struct ContentView: View {
                 if locationManager.inPark {
                     MapUserLocationButton()
                 }
-#if os(macOS)
-                MapZoomStepper()
-#endif
             }
             .mapStyle(mapStyle)
             .onAppear {
