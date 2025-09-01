@@ -79,13 +79,7 @@ struct ContentView: View {
                 onSelectExhibit: onSelectExhibit,
                 parkData: yorkStreetData,
                 parkCategories: yorkStreetCategories,
-            ).toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button("Close") {
-                        isExhibitListOpen = false
-                    }
-                }
-            }
+            )
         }
     }
 }
