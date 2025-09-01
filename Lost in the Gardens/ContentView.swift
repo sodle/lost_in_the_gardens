@@ -23,35 +23,6 @@ let bounds = MapCameraBounds(
 )
 let initialCamera = MapCamera(centerCoordinate: yorkStreetData.parkCenter.coordinate, distance: 1000)
 
-struct SatelliteViewToggler: View {
-    @Binding var isSatelliteViewActive: Bool
-    
-    func toggle() {
-        isSatelliteViewActive.toggle()
-    }
-    
-    private var buttonStyle: some PrimitiveButtonStyle {
-        if #available(iOS 26.0, macOS 26.0, *) {
-            return .glassProminent
-        } else {
-            return .borderedProminent
-        }
-    }
-    
-    private var imageName: String {
-        isSatelliteViewActive ? "globe.americas.fill" : "map.fill"
-    }
-    
-    var body: some View {
-        Button(action: toggle) {
-            Image(systemName: imageName)
-        }
-        .buttonStyle(buttonStyle)
-        .buttonBorderShape(.roundedRectangle)
-        .tint(.accent)
-    }
-}
-
 struct ContentView: View {
     @State var camera: MapCameraPosition = MapCameraPosition.camera(initialCamera)
     @State var selectedMarker: ParkDataMarker?
@@ -59,6 +30,10 @@ struct ContentView: View {
     
     @Namespace private var mapScope
     @ObservedObject private var locationManager = LocationManager(park: yorkStreetData)
+    
+    private var mapStyle: MapStyle {
+        isSatelliteViewActive ? .imagery : .standard(pointsOfInterest: .excludingAll)
+    }
     
     var body: some View {
         ZStack(alignment: .topTrailing) {
@@ -76,38 +51,20 @@ struct ContentView: View {
                     marker
                 }
                 UserAnnotation()
-            }.mapControlVisibility(.hidden)
-                .mapStyle(isSatelliteViewActive ? .imagery : .standard(pointsOfInterest: .excludingAll))
-                .onAppear {
-                    locationManager.checkLocationAuthorization()
-                }
+            }
+            .mapControlVisibility(.hidden)
+            .mapStyle(mapStyle)
             
-            VStack {
-                HStack(alignment: .top) {
-                    VStack {
-                        MapScaleView(scope: mapScope)
-                    }.frame(maxWidth: .infinity, alignment: .leading)
-                    
-                    HStack {
-                        VStack {
-                            SatelliteViewToggler(isSatelliteViewActive: $isSatelliteViewActive)
-                            MapCompass(scope: mapScope)
-                        }
-                    }.frame(maxWidth: .infinity, alignment: .trailing)
-                }.frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-                
-                HStack(alignment: .bottom) {
-                    VStack(alignment: .trailing) {
-                        if locationManager.inPark {
-                            MapUserLocationButton(scope: mapScope)
-                        }
-#if os(macOS)
-                        MapZoomStepper(scope: mapScope)
-#endif
-                    }.frame(maxWidth: .infinity, alignment: .trailing)
-                }.frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing)
-            }.padding()
-        }.mapScope(mapScope)
+            NavigationOverlay(
+                mapScope: mapScope,
+                isSatelliteViewActive: $isSatelliteViewActive,
+                inPark: $locationManager.inPark,
+            )
+        }
+        .mapScope(mapScope)
+        .onAppear {
+            locationManager.checkLocationAuthorization()
+        }
     }
 }
 
