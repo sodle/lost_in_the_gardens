@@ -28,10 +28,10 @@ struct ContentView: View {
     @State var camera: MapCameraPosition = MapCameraPosition.camera(initialCamera)
     @State var selectedMarker: ParkDataMarker?
     @State var isSatelliteViewActive: Bool = false
-    @State var isExhibitListOpen: Bool = false
     
-    @Namespace private var mapScope
     @ObservedObject private var locationManager = LocationManager(park: yorkStreetData)
+    
+    @State private var navigationPath = [Int]()
     
     private var mapStyle: MapStyle {
         isSatelliteViewActive ? .imagery : .standard(pointsOfInterest: .excludingAll)
@@ -40,17 +40,15 @@ struct ContentView: View {
     private func onSelectExhibit(_ marker: ParkDataMarker) {
         selectedMarker = marker
         camera = MapCameraPosition.camera(MapCamera(centerCoordinate: marker.marker.coordinate, distance: 500))
-        isExhibitListOpen = false
     }
     
     var body: some View {
-        ZStack(alignment: .topTrailing) {
+        NavigationStack(path: $navigationPath) {
             Map (
                 position: $camera,
                 bounds: bounds,
                 interactionModes: [.pan, .zoom, .rotate],
                 selection: $selectedMarker,
-                scope: mapScope,
             ) {
                 parkShape
                     .stroke(.blue, lineWidth: 3)
@@ -60,26 +58,45 @@ struct ContentView: View {
                 }
                 UserAnnotation()
             }
-            .mapControlVisibility(.hidden)
+            .mapControls {
+                MapScaleView()
+                MapCompass()
+                if locationManager.inPark {
+                    MapUserLocationButton()
+                }
+#if os(macOS)
+                MapZoomStepper()
+#endif
+            }
             .mapStyle(mapStyle)
-            
-            NavigationOverlay(
-                mapScope: mapScope,
-                isSatelliteViewActive: $isSatelliteViewActive,
-                inPark: $locationManager.inPark,
-                isExhibitListOpen: $isExhibitListOpen
-            )
-        }
-        .mapScope(mapScope)
-        .onAppear {
-            locationManager.checkLocationAuthorization()
-        }
-        .sheet(isPresented: $isExhibitListOpen) {
-            ExhibitList(
-                onSelectExhibit: onSelectExhibit,
-                parkData: yorkStreetData,
-                parkCategories: yorkStreetCategories,
-            )
+            .onAppear {
+                locationManager.checkLocationAuthorization()
+            }
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Picker(selection: $isSatelliteViewActive, label: Text("Map Style")) {
+                        Image(systemName: "map").tag(false)
+                        Image(systemName: "globe.americas").tag(true)
+                    }
+                    .pickerStyle(.segmented)
+                    .fixedSize()
+                }
+                
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    NavigationLink {
+                        ExhibitList(
+                            onSelectExhibit: onSelectExhibit,
+                            parkData: yorkStreetData,
+                            parkCategories: yorkStreetCategories
+                        )
+                        .navigationTitle(Text("Destinations"))
+                    } label: {
+                        Image(systemName: "list.star")
+                    }
+
+                }
+            }
+            .toolbarBackground(.visible, for: .navigationBar)
         }
     }
 }

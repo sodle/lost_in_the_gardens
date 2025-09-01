@@ -12,6 +12,8 @@ struct ExhibitList: View {
     let parkData: ParkDataFile
     let parkCategories: ParkCategoryFile
     
+    @Environment(\.dismiss) var dismiss
+    
     var body: some View {
         List {
             ForEach(parkCategories.categoryKeys, id: \.self) { categoryKey in
@@ -21,6 +23,7 @@ struct ExhibitList: View {
                     ForEach(markers) { marker in
                         Button(action: {
                             onSelectExhibit(marker)
+                            dismiss()
                         }, label: {
                             HStack {
                                 Text(marker.properties.monogram ?? "")
