@@ -32,14 +32,14 @@ struct SatelliteViewToggler: View {
     
     private var buttonStyle: some PrimitiveButtonStyle {
         if #available(iOS 26.0, macOS 26.0, *) {
-            return .glass
+            return .glassProminent
         } else {
             return .borderedProminent
         }
     }
     
     private var imageName: String {
-        isSatelliteViewActive ? "globe" : "map.fill"
+        isSatelliteViewActive ? "globe.americas.fill" : "map.fill"
     }
     
     var body: some View {
