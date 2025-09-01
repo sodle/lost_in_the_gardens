@@ -4,6 +4,8 @@
 <dict>
 	<key>water-gardens</key>
 	<dict>
+		<key>index</key>
+		<integer>5</integer>
 		<key>name</key>
 		<string>Water Gardens</string>
 		<key>color</key>
@@ -18,6 +20,8 @@
 	</dict>
 	<key>shady-gardens</key>
 	<dict>
+		<key>index</key>
+		<integer>4</integer>
 		<key>name</key>
 		<string>Shady Gardens</string>
 		<key>color</key>
@@ -32,6 +36,8 @@
 	</dict>
 	<key>ornamental-gardens</key>
 	<dict>
+		<key>index</key>
+		<integer>3</integer>
 		<key>name</key>
 		<string>Ornamental Gardens</string>
 		<key>color</key>
@@ -46,6 +52,8 @@
 	</dict>
 	<key>internationally-inspired-gardens</key>
 	<dict>
+		<key>index</key>
+		<integer>2</integer>
 		<key>name</key>
 		<string>Internationally Inspired Gardens</string>
 		<key>color</key>
@@ -60,6 +68,8 @@
 	</dict>
 	<key>gardens-of-the-west</key>
 	<dict>
+		<key>index</key>
+		<integer>1</integer>
 		<key>name</key>
 		<string>Gardens of the West</string>
 		<key>color</key>
@@ -74,6 +84,8 @@
 	</dict>
 	<key>facilities</key>
 	<dict>
+		<key>index</key>
+		<integer>0</integer>
 		<key>name</key>
 		<string>Facilities</string>
 		<key>color</key>

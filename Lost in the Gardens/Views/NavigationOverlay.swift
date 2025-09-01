@@ -12,6 +12,7 @@ struct NavigationOverlay: View {
     let mapScope: Namespace.ID
     @Binding var isSatelliteViewActive: Bool
     @Binding var inPark: Bool
+    @Binding var isExhibitListOpen: Bool
     
     var body: some View {
         VStack {
@@ -20,11 +21,10 @@ struct NavigationOverlay: View {
                     MapScaleView(scope: mapScope)
                 }.frame(maxWidth: .infinity, alignment: .leading)
                 
-                HStack {
-                    VStack {
-                        SatelliteViewToggler(isSatelliteViewActive: $isSatelliteViewActive)
-                        MapCompass(scope: mapScope)
-                    }
+                VStack {
+                    SatelliteViewToggler(isSatelliteViewActive: $isSatelliteViewActive)
+                    ExhibitListButton(isExhibitListOpen: $isExhibitListOpen)
+                    MapCompass(scope: mapScope)
                 }.frame(maxWidth: .infinity, alignment: .trailing)
             }.frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
             
@@ -44,5 +44,10 @@ struct NavigationOverlay: View {
 
 #Preview {
     @Previewable @Namespace var mapScope
-    NavigationOverlay(mapScope: mapScope, isSatelliteViewActive: .constant(false), inPark: .constant(true))
+    NavigationOverlay(
+        mapScope: mapScope,
+        isSatelliteViewActive: .constant(false),
+        inPark: .constant(true),
+        isExhibitListOpen: .constant(false),
+    )
 }

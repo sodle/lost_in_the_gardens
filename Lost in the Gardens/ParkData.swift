@@ -28,16 +28,26 @@ class ParkCategoryColor: Decodable {
     }
 }
 
-class ParkCategory: Decodable {
+class ParkCategory: Decodable, Identifiable, Comparable {
+    static func < (lhs: ParkCategory, rhs: ParkCategory) -> Bool {
+        lhs.index < rhs.index
+    }
+    
+    static func == (lhs: ParkCategory, rhs: ParkCategory) -> Bool {
+        lhs.index == rhs.index
+    }
+    
+    let index: Int
     let name: String
     let color: ParkCategoryColor
     
-    init(name: String, color: ParkCategoryColor) {
+    init(index: Int, name: String, color: ParkCategoryColor) {
+        self.index = index
         self.name = name
         self.color = color
     }
     
-    static let unknown = ParkCategory(name: "Unknown", color: ParkCategoryColor(red: 0, green: 0, blue: 0))
+    static let unknown = ParkCategory(index: -1, name: "Unknown", color: ParkCategoryColor(red: 0, green: 0, blue: 0))
 }
 
 class ParkCategoryFile {
@@ -56,6 +66,14 @@ class ParkCategoryFile {
     func getCategory(_ name: String) -> ParkCategory {
         categories[name] ?? ParkCategory.unknown
     }
+    
+    var categoriesList: [ParkCategory] {
+        categories.values.sorted()
+    }
+    
+    var categoryKeys: [String] {
+        categories.keys.sorted()
+    }
 }
 
 struct ParkDataProperties: Decodable {
@@ -63,9 +81,21 @@ struct ParkDataProperties: Decodable {
     let category: String
     let monogram: String?
     let iconName: String?
+    
+    var sortKey: String {
+        guard let monogram, !monogram.isEmpty else { return name }
+        if let number = Int(monogram) {
+            return String(format: "%02d", number)
+        }
+        return monogram
+    }
 }
 
-struct ParkDataMarker: Identifiable, Hashable, MapContent {
+struct ParkDataMarker: Identifiable, Hashable, MapContent, Comparable {
+    static func < (lhs: ParkDataMarker, rhs: ParkDataMarker) -> Bool {
+        lhs.properties.sortKey < rhs.properties.sortKey
+    }
+    
     static func == (lhs: ParkDataMarker, rhs: ParkDataMarker) -> Bool {
         lhs.id == rhs.id
     }
@@ -101,6 +131,10 @@ struct ParkDataFile {
     let parkCenter: MKPointAnnotation
     let parkBounds: MKPolygon
     let parkMarkers: [ParkDataMarker]
+    
+    func getCategory(_ category: String) -> [ParkDataMarker] {
+        parkMarkers.filter { $0.properties.category == category }
+    }
     
     init(_ filename: String) {
         let geoDecoder = MKGeoJSONDecoder()
