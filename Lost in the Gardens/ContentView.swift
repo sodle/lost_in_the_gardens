@@ -89,7 +89,6 @@ struct ContentView: View {
                             parkData: yorkStreetData,
                             parkCategories: yorkStreetCategories
                         )
-                        .navigationTitle(Text("Destinations"))
                     } label: {
                         Image(systemName: "list.star")
                     }
