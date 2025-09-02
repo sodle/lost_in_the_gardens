@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		1A3FEBAF2E66697100D54C07 /* litg_logo_transparent.png in Resources */ = {isa = PBXBuildFile; fileRef = 1A3FEBAD2E66697100D54C07 /* litg_logo_transparent.png */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		1A7EDED32E61222300D83B8E /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -24,6 +28,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		1A3FEBAD2E66697100D54C07 /* litg_logo_transparent.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = litg_logo_transparent.png; sourceTree = "<group>"; };
 		1A7EDEC22E61222200D83B8E /* Lost in the Gardens.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Lost in the Gardens.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		1A7EDED22E61222300D83B8E /* Lost in the GardensTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Lost in the GardensTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		1A7EDEDC2E61222300D83B8E /* Lost in the GardensUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Lost in the GardensUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -72,9 +77,18 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		1A3FEBAE2E66697100D54C07 /* LegacyIcons */ = {
+			isa = PBXGroup;
+			children = (
+				1A3FEBAD2E66697100D54C07 /* litg_logo_transparent.png */,
+			);
+			path = LegacyIcons;
+			sourceTree = "<group>";
+		};
 		1A7EDEB92E61222200D83B8E = {
 			isa = PBXGroup;
 			children = (
+				1A3FEBAE2E66697100D54C07 /* LegacyIcons */,
 				1A7EDEC42E61222200D83B8E /* Lost in the Gardens */,
 				1A7EDED52E61222300D83B8E /* Lost in the GardensTests */,
 				1A7EDEDF2E61222300D83B8E /* Lost in the GardensUITests */,
@@ -212,6 +226,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1A3FEBAF2E66697100D54C07 /* litg_logo_transparent.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
