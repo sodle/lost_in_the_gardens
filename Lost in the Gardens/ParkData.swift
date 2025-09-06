@@ -48,18 +48,18 @@ class ParkCategory: Decodable, Identifiable, Comparable {
     static let unknown = ParkCategory(index: -1, name: "Unknown", color: ParkCategoryColor(red: 0, green: 0, blue: 0))
 }
 
-class ParkCategoryFile {
+struct ParkCategoryFile {
+    static let yorkStreet = ParkCategoryFile(fromLocalFile: "YorkStreet")
+    
     private let categories: [String: ParkCategory]
     
-    static let yorkStreet = ParkCategoryFile("YorkStreet")
+    init(fromLocalFile filename: String) {
+        let data = try! Data(contentsOf: Bundle.main.url(forResource: filename, withExtension: "json")!)
+        self.init(fromData: data)
+    }
 
-    init(_ filename: String) {
-        guard let categoriesUrl = Bundle.main.url(forResource: filename, withExtension: "json") else {
-            fatalError("Couldn't find \(filename).json in main bundle.")
-        }
-        
-        let categoriesData = try! Data(contentsOf: categoriesUrl)
-        self.categories = try! JSONDecoder().decode([String: ParkCategory].self, from: categoriesData)
+    init(fromData categoryData: Data) {
+        self.categories = try! JSONDecoder().decode([String: ParkCategory].self, from: categoryData)
     }
     
     func getCategory(_ name: String) -> ParkCategory {
@@ -128,26 +128,29 @@ struct ParkDataMarker: Identifiable, Hashable, MapContent, Comparable {
 }
 
 struct ParkDataFile {
+    static let yorkStreet = ParkDataFile(fromLocalFile: "YorkStreet", withCategories: .yorkStreet)
+    
     let parkCenter: MKPointAnnotation
     let parkBounds: MKPolygon
     let parkMarkers: [ParkDataMarker]
-    
-    static let yorkStreet: ParkDataFile = .init("YorkStreet", categoryFile: .yorkStreet)
+    let categoryFile: ParkCategoryFile
     
     func getCategory(_ category: String) -> [ParkDataMarker] {
         parkMarkers.filter { $0.properties.category == category }
     }
     
-    init(_ filename: String, categoryFile: ParkCategoryFile) {
+    init(fromLocalFile filename: String, withCategories categoryFile: ParkCategoryFile) {
+        let data = try! Data(contentsOf: Bundle.main.url(forResource: filename, withExtension: "geojson")!)
+        self.init(fromData: data, withCategories: categoryFile)
+    }
+    
+    init(fromData parkData: Data, withCategories categoryFile: ParkCategoryFile) {
+        self.categoryFile = categoryFile
+        
         let geoDecoder = MKGeoJSONDecoder()
         let jsonDecoder = JSONDecoder()
         
-        guard let jsonUrl = Bundle.main.url(forResource: filename, withExtension: "geojson") else {
-            fatalError("Couldn't find \(filename).geojson in main bundle.")
-        }
-        
-        let data = try! Data(contentsOf: jsonUrl)
-        let jsonObjects = try! geoDecoder.decode(data)
+        let jsonObjects = try! geoDecoder.decode(parkData)
         
         var center: MKPointAnnotation?
         var bounds: MKPolygon?
@@ -189,15 +192,66 @@ struct ParkDataFile {
         }
         
         guard let center else {
-            fatalError("\(filename).geojson did not contain a feature for the center of the park")
+            fatalError("shapefile did not contain a feature for the center of the park")
         }
         self.parkCenter = center
         
         guard let bounds else {
-            fatalError("\(filename).geojson did not contain a feature for the boundaries of the park")
+            fatalError("shapefile did not contain a feature for the boundaries of the park")
         }
         self.parkBounds = bounds
         
         self.parkMarkers = markers
+    }
+}
+
+struct DataFileManifest: Decodable {
+    let url: String
+    let effectiveDate: String
+    let sha256: String
+    
+    func load(fromBaseUrl baseUrl: URL, withUrlSession urlSession: URLSession) async throws -> Data {
+        let dataUrl = baseUrl.appendingPathComponent(url)
+        let (data, _) = try await urlSession.data(from: dataUrl)
+        return data
+    }
+}
+
+struct DataLocationManifest: Decodable {
+    let shapeFile: DataFileManifest
+    let categoryFile: DataFileManifest
+}
+
+struct DataPlatformManifest: Decodable {
+    let YorkStreet: DataLocationManifest
+}
+
+struct DataManifest: Decodable {
+    let iOS: DataPlatformManifest
+    
+    init(fromJson json: Data) {
+        self = try! JSONDecoder().decode(DataManifest.self, from: json)
+    }
+}
+
+struct DataManager {
+    private let baseURL: URL = URL(string: "https://lostinthegardens.com/")!
+    private let urlSession: URLSession = .shared
+    
+    private let manifest: DataManifest
+    
+    init () async {
+        let dataManifestUrl = self.baseURL.appendingPathComponent("/api")
+        let (manifestData, _) = try! await urlSession.data(from: dataManifestUrl)
+        
+        self.manifest = DataManifest(fromJson: manifestData)
+    }
+    
+    func loadYorkStreetData() async throws -> ParkDataFile {
+        let categoryData = try await manifest.iOS.YorkStreet.categoryFile.load(fromBaseUrl: baseURL, withUrlSession: urlSession)
+        let categoryFile = ParkCategoryFile(fromData: categoryData)
+        
+        let shapeData = try await manifest.iOS.YorkStreet.shapeFile.load(fromBaseUrl: baseURL, withUrlSession: urlSession)
+        return ParkDataFile(fromData: shapeData, withCategories: categoryFile)
     }
 }
