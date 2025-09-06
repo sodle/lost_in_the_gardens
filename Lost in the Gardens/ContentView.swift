@@ -8,8 +8,8 @@
 import SwiftUI
 import MapKit
 
-let yorkStreetData = ParkDataFile("YorkStreet")
-let yorkStreetCategories = ParkCategoryFile("YorkStreet")
+let yorkStreetCategories = ParkCategoryFile.yorkStreet
+let yorkStreetData = ParkDataFile.yorkStreet
 
 let parkShape = MapPolygon(yorkStreetData.parkBounds)
 let region = MKCoordinateRegion(

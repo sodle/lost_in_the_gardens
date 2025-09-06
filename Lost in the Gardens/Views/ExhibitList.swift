@@ -102,8 +102,8 @@ struct ExhibitList: View {
             onSelectExhibit: { marker in
                 print("tap on \(marker.properties.name)")
             },
-            parkData: .init("YorkStreet"),
-            parkCategories: .init("YorkStreet"),
+            parkData: .yorkStreet,
+            parkCategories: .yorkStreet,
         )
     }
 }

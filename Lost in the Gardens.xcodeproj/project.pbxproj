@@ -32,22 +32,9 @@
 		1A7EDEDC2E61222300D83B8E /* Lost in the GardensUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Lost in the GardensUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
-/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		1A3FEBB32E666FB100D54C07 /* Exceptions for "Lost in the Gardens" folder in "Lost in the Gardens" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				"Lost-in-the-Gardens-Info.plist",
-			);
-			target = 1A7EDEC12E61222200D83B8E /* Lost in the Gardens */;
-		};
-/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
-
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		1A7EDEC42E61222200D83B8E /* Lost in the Gardens */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				1A3FEBB32E666FB100D54C07 /* Exceptions for "Lost in the Gardens" folder in "Lost in the Gardens" target */,
-			);
 			path = "Lost in the Gardens";
 			sourceTree = "<group>";
 		};

@@ -10,8 +10,6 @@ import CoreLocation
 import SwiftUI
 import MapKit
 
-let categoriesPlistFilename = "Categories"
-
 class ParkCategoryColor: Decodable {
     let red: Double
     let green: Double
@@ -52,15 +50,16 @@ class ParkCategory: Decodable, Identifiable, Comparable {
 
 class ParkCategoryFile {
     private let categories: [String: ParkCategory]
-    static let shared = ParkCategoryFile(categoriesPlistFilename)
+    
+    static let yorkStreet = ParkCategoryFile("YorkStreet")
 
     init(_ filename: String) {
-        guard let categoriesUrl = Bundle.main.url(forResource: categoriesPlistFilename, withExtension: "plist") else {
-            fatalError("Couldn't find \(categoriesPlistFilename).plist in main bundle.")
+        guard let categoriesUrl = Bundle.main.url(forResource: filename, withExtension: "json") else {
+            fatalError("Couldn't find \(filename).json in main bundle.")
         }
         
         let categoriesData = try! Data(contentsOf: categoriesUrl)
-        self.categories = try! PropertyListDecoder().decode([String: ParkCategory].self, from: categoriesData)
+        self.categories = try! JSONDecoder().decode([String: ParkCategory].self, from: categoriesData)
     }
     
     func getCategory(_ name: String) -> ParkCategory {
@@ -108,9 +107,10 @@ struct ParkDataMarker: Identifiable, Hashable, MapContent, Comparable {
     
     let properties: ParkDataProperties
     let marker: MKPointAnnotation
+    let categoryFile: ParkCategoryFile
     
     var body: some MapContent {
-        let categoryData = ParkCategoryFile.shared.getCategory(properties.category)
+        let categoryData = categoryFile.getCategory(properties.category)
         if let monogram = properties.monogram {
             Marker(properties.name, monogram: Text(monogram), coordinate: marker.coordinate)
                 .tint(categoryData.color.uiColor)
@@ -132,11 +132,13 @@ struct ParkDataFile {
     let parkBounds: MKPolygon
     let parkMarkers: [ParkDataMarker]
     
+    static let yorkStreet: ParkDataFile = .init("YorkStreet", categoryFile: .yorkStreet)
+    
     func getCategory(_ category: String) -> [ParkDataMarker] {
         parkMarkers.filter { $0.properties.category == category }
     }
     
-    init(_ filename: String) {
+    init(_ filename: String, categoryFile: ParkCategoryFile) {
         let geoDecoder = MKGeoJSONDecoder()
         let jsonDecoder = JSONDecoder()
         
@@ -172,7 +174,7 @@ struct ParkDataFile {
                     if properties.category == "park-geometry" {
                         center = point
                     } else {
-                        markers.append(ParkDataMarker(properties: properties, marker: point))
+                        markers.append(ParkDataMarker(properties: properties, marker: point, categoryFile: categoryFile))
                     }
                 } else if let polygon = geometry as? MKPolygon {
                     if properties.category == "park-geometry" {
