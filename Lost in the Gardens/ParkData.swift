@@ -125,6 +125,14 @@ struct ParkDataMarker: Identifiable, Hashable, MapContent, Comparable {
                 .tag(self)
         }
     }
+    
+    var position: MKMapItem {
+        if #available(iOS 26.0, *) {
+            .init(location: .init(latitude: marker.coordinate.latitude, longitude: marker.coordinate.longitude), address: nil)
+        } else {
+            .init(placemark: MKPlacemark(coordinate: marker.coordinate))
+        }
+    }
 }
 
 struct ParkDataFile {
@@ -236,13 +244,18 @@ struct DataManifest: Decodable {
 
 struct DataManager {
     private let baseURL: URL = URL(string: "https://lostinthegardens.com/")!
-    private let urlSession: URLSession = .shared
+    private let urlSession: URLSession
     
     private let manifest: DataManifest
     
-    init () async {
+    init () async throws {
+        let sessionConfiguration = URLSessionConfiguration.default
+        sessionConfiguration.timeoutIntervalForRequest = 1
+        sessionConfiguration.timeoutIntervalForResource = 2
+        urlSession = URLSession(configuration: sessionConfiguration)
+        
         let dataManifestUrl = self.baseURL.appendingPathComponent("/api")
-        let (manifestData, _) = try! await urlSession.data(from: dataManifestUrl)
+        let (manifestData, _) = try await urlSession.data(from: dataManifestUrl)
         
         self.manifest = DataManifest(fromJson: manifestData)
     }

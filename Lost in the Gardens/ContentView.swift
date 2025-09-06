@@ -8,91 +8,53 @@
 import SwiftUI
 import MapKit
 
-let yorkStreetCategories = ParkCategoryFile.yorkStreet
-let yorkStreetData = ParkDataFile.yorkStreet
-
-let parkShape = MapPolygon(yorkStreetData.parkBounds)
-let region = MKCoordinateRegion(
-    center: yorkStreetData.parkCenter.coordinate,
-    latitudinalMeters: 1000,
-    longitudinalMeters: 1000,
-)
-let bounds = MapCameraBounds(
-    centerCoordinateBounds: region,
-    minimumDistance: 10,
-    maximumDistance: 2000,
-)
-let initialCamera = MapCamera(centerCoordinate: yorkStreetData.parkCenter.coordinate, distance: 1000)
-
 struct ContentView: View {
-    @State var camera: MapCameraPosition = MapCameraPosition.camera(initialCamera)
-    @State var selectedMarker: ParkDataMarker?
-    @State var isSatelliteViewActive: Bool = false
-    
-    @ObservedObject private var locationManager = LocationManager(park: yorkStreetData)
-    
     @State private var navigationPath = [Int]()
+    @State private var parkData: ParkDataFile?
     
-    private var mapStyle: MapStyle {
-        isSatelliteViewActive ? .imagery : .standard(pointsOfInterest: .excludingAll)
-    }
+    @State var isUsingCachedData: Bool = false
     
-    private func onSelectExhibit(_ marker: ParkDataMarker) {
-        selectedMarker = marker
-        camera = MapCameraPosition.camera(MapCamera(centerCoordinate: marker.marker.coordinate, distance: 500))
+    func tryLoadData() async {
+        if let dataManager = try? await DataManager(),
+           let data = try? await dataManager.loadYorkStreetData() {
+            print("loaded data from API")
+            parkData = data
+            isUsingCachedData = false
+        } else {
+            print("loaded data from local copy")
+            parkData = .yorkStreet
+            isUsingCachedData = true
+        }
     }
     
     var body: some View {
         NavigationStack(path: $navigationPath) {
-            Map (
-                position: $camera,
-                bounds: bounds,
-                interactionModes: [.pan, .zoom, .rotate],
-                selection: $selectedMarker,
-            ) {
-                parkShape
-                    .stroke(.blue, lineWidth: 3)
-                    .foregroundStyle(.clear)
-                ForEach(yorkStreetData.parkMarkers) { marker in
-                    marker
-                }
-                UserAnnotation()
-            }
-            .mapControls {
-                MapScaleView()
-                MapCompass()
-                if locationManager.inPark {
-                    MapUserLocationButton()
-                }
-            }
-            .mapStyle(mapStyle)
-            .onAppear {
-                locationManager.checkLocationAuthorization()
-            }
-            .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Picker(selection: $isSatelliteViewActive, label: Text("Map Style")) {
-                        Image(systemName: "map").tag(false)
-                        Image(systemName: "globe.americas").tag(true)
+            if let parkData {
+                ZStack(alignment: .bottom) {
+                    MapView(withParkData: parkData)
+                    if isUsingCachedData {
+                        HStack {
+                            Spacer()
+                            Text("We're having trouble talking to our servers right now, so this information might not be up-to-date.")
+                                .padding()
+                            Button("Retry") {
+                                Task {
+                                    await tryLoadData()
+                                }
+                            }.padding()
+                            Spacer()
+                        }
+                        .background(.windowBackground.opacity(0.9))
+                        .clipShape(.capsule)
                     }
-                    .pickerStyle(.segmented)
-                    .fixedSize()
                 }
-                
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    NavigationLink {
-                        ExhibitList(
-                            onSelectExhibit: onSelectExhibit,
-                            parkData: yorkStreetData,
-                            parkCategories: yorkStreetCategories
-                        )
-                    } label: {
-                        Image(systemName: "list.star")
+            } else {
+                Text("Loading...").onAppear {
+                    Task {
+                        await tryLoadData()
                     }
-
                 }
             }
-            .toolbarBackground(.visible, for: .navigationBar)
         }
     }
 }
