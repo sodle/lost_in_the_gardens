@@ -128,7 +128,7 @@ struct ParkDataMarker: Identifiable, Hashable, MapContent, Comparable {
     
     var position: MKMapItem {
         if #available(iOS 26.0, *) {
-            MKMapItem(location: .init(latitude: marker.coordinate.latitude, longitude: marker.coordinate.longitude), address: nil)
+            MKMapItem(location: CLLocation(latitude: marker.coordinate.latitude, longitude: marker.coordinate.longitude), address: nil)
         } else {
             MKMapItem(placemark: MKPlacemark(coordinate: marker.coordinate))
         }
