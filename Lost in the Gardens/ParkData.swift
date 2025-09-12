@@ -127,15 +127,11 @@ struct ParkDataMarker: Identifiable, Hashable, MapContent, Comparable {
     }
     
     var position: MKMapItem {
-#if swift(<6.2)
-        MKMapItem(placemark: MKPlacemark(coordinate: marker.coordinate))
-#else
         if #available(iOS 26.0, *) {
             MKMapItem(location: CLLocation(latitude: marker.coordinate.latitude, longitude: marker.coordinate.longitude), address: nil)
         } else {
             MKMapItem(placemark: MKPlacemark(coordinate: marker.coordinate))
         }
-#endif
     }
 }
 
