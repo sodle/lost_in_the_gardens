@@ -24,12 +24,10 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		1A3FEBAD2E66697100D54C07 /* litg_logo_transparent.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = litg_logo_transparent.png; sourceTree = "<group>"; };
-		1A3FEBB02E666DD100D54C07 /* gradient.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = gradient.png; sourceTree = "<group>"; };
-		1A3FEBB12E666DD100D54C07 /* litg_logo_gradient.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = litg_logo_gradient.png; sourceTree = "<group>"; };
 		1A7EDEC22E61222200D83B8E /* Lost in the Gardens.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Lost in the Gardens.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		1A7EDED22E61222300D83B8E /* Lost in the GardensTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Lost in the GardensTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		1A7EDEDC2E61222300D83B8E /* Lost in the GardensUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Lost in the GardensUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		1AC61BBA3045E4EC008BCA39 /* litg_logo_transparent_v2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = litg_logo_transparent_v2.png; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -78,9 +76,7 @@
 		1A3FEBAE2E66697100D54C07 /* LegacyIcons */ = {
 			isa = PBXGroup;
 			children = (
-				1A3FEBB02E666DD100D54C07 /* gradient.png */,
-				1A3FEBB12E666DD100D54C07 /* litg_logo_gradient.png */,
-				1A3FEBAD2E66697100D54C07 /* litg_logo_transparent.png */,
+				1AC61BBA3045E4EC008BCA39 /* litg_logo_transparent_v2.png */,
 			);
 			path = LegacyIcons;
 			sourceTree = "<group>";
@@ -420,7 +416,7 @@
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "Lost-in-the-Gardens-Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = "Lost in the Gardens";
+				INFOPLIST_KEY_CFBundleDisplayName = Gardens;
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.travel";
 				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "We use background location to automatically start dropping breadcrumbs when you enter the Gardens.";
@@ -472,7 +468,7 @@
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "Lost-in-the-Gardens-Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = "Lost in the Gardens";
+				INFOPLIST_KEY_CFBundleDisplayName = Gardens;
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.travel";
 				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "We use background location to automatically start dropping breadcrumbs when you enter the Gardens.";
