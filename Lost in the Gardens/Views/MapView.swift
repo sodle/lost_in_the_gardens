@@ -73,7 +73,7 @@ struct MapView: View {
             locationManager.checkLocationAuthorization()
         }
         .toolbar {
-            ToolbarItem(placement: .navigationBarLeading) {
+            ToolbarItem(placement: .topBarLeading) {
                 Picker(selection: $isSatelliteViewActive, label: Text("Map Style")) {
                     Image(systemName: "map").tag(false)
                     Image(systemName: "globe.americas").tag(true)
@@ -82,7 +82,14 @@ struct MapView: View {
                 .fixedSize()
             }
             
-            ToolbarItem(placement: .navigationBarTrailing) {
+            ToolbarItem(placement: .topBarTrailing) {
+                NavigationLink {
+                    InfoPage()
+                } label: {
+                    Image(systemName: "info")
+                }
+            }
+            ToolbarItem(placement: .topBarTrailing) {
                 NavigationLink {
                     ExhibitList(
                         onSelectExhibit: onSelectExhibit,
